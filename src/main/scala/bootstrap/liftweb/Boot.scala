@@ -13,17 +13,17 @@ import _root_.com.citrix.pong.model._
 
 
 /**
- * A class that's instantiated early and run.  It allows the application
- * to modify lift's environment
- */
+* A class that's instantiated early and run.  It allows the application
+* to modify lift's environment
+*/
 class Boot {
   def boot {
     if (!DB.jndiJdbcConnAvailable_?) {
-      val vendor = 
-	new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
-			     Props.get("db.url") openOr 
-			     "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
-			     Props.get("db.user"), Props.get("db.password"))
+      val vendor =
+        new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
+                             Props.get("db.url") openOr
+                             "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
+                             Props.get("db.user"), Props.get("db.password"))
 
       LiftRules.unloadHooks.append(vendor.closeAllConnections_! _)
 
@@ -32,16 +32,23 @@ class Boot {
 
     // where to search snippet
     LiftRules.addToPackages("com.citrix.pong")
-    Schemifier.schemify(true, Schemifier.infoF _, User)
+    Schemifier.schemify(true, Schemifier.infoF _, Player)
+    Schemifier.schemify(true, Schemifier.infoF _, CurrentRatings)
+    Schemifier.schemify(true, Schemifier.infoF _, GamesPlayed)
+    Schemifier.schemify(true, Schemifier.infoF _, GameResults)
+    Schemifier.schemify(true, Schemifier.infoF _, GameTypes)
 
     // Build SiteMap
     def sitemap() = SiteMap(
-      Menu("Home") / "index" >> User.AddUserMenusAfter, // Simple menu form
+      // Simple menu form
+      Menu("Home") / "index" >> Player.AddUserMenusAfter,
       // Menu with special Link
-      Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
-	       "Static Content")))
+      Menu(Loc("Static", Link(List("static"), true, "/static/index"),
+                                   "Static Content")) /* ,
+      Menu(Loc("Custom", Link(List("static", true, "/static/index"), "Custom Content"))) */ )
 
-    LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap()))
+    //LiftRules.setSiteMapFunc(() => Player.sitemapMutator(sitemap()))
+    LiftRules.setSiteMapFunc(() => sitemap())
 
     /*
      * Show the spinny image when an Ajax call starts
@@ -57,7 +64,8 @@ class Boot {
 
     LiftRules.early.append(makeUtf8)
 
-    LiftRules.loggedInTest = Full(() => User.loggedIn_?)
+    //LiftRules.loggedInTest = Full(() => User.loggedIn_?)
+    LiftRules.loggedInTest = Full(() => Player.loggedIn_?)
 
     S.addAround(DB.buildLoanWrapper)
   }

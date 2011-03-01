@@ -1,0 +1,22 @@
+- Player
+  - Id
+  - FirstName
+  - LastName
+  - DisplayName
+  - Email
+- GameTypes
+  - Id
+  - Name
+- GamesPlayed
+  - Id
+  - Date
+  - GameType
+- GameResults
+  - Id
+  - Player
+  - Outcome
+  - NewRating
+- CurrentRatings
+  - Player
+  - GameType
+  - Rating
